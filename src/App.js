@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { ResultsList } from './components/ResultsList';
 import { motion } from 'framer-motion';
 
-const apiKey = 'AIzaSyBqXO65m7Lb3iQqxv9x0pITAB6iwJ_HAh8';
+let apiKey; //ADD YOUR OWN API KEY HERE
 
 function App() {
   //Styling
