@@ -1,41 +1,92 @@
-import React from 'react';
 import {
-  ChakraProvider,
   Box,
-  Text,
-  Link,
   VStack,
-  Code,
-  Grid,
-  theme,
+  Center,
+  Input,
+  Heading,
+  InputGroup,
+  InputLeftElement,
+  Button,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-import { Logo } from './Logo';
+import { BsSearch } from 'react-icons/bs';
+import axios from 'axios';
+import { useState } from 'react';
+import { ResultsList } from './components/ResultsList';
+import { motion } from 'framer-motion';
+
+const apiKey = 'AIzaSyBqXO65m7Lb3iQqxv9x0pITAB6iwJ_HAh8';
 
 function App() {
+  //Styling
+  const bg = useColorModeValue('gray.200', 'gray.800');
+  const shadow = useColorModeValue('lg', 'dark-lg');
+
+  //Use States
+  const [results, setResults] = useState([]);
+  const [searchPhrase, setSearchPhrase] = useState('');
+
+  //Framer Motion Components
+  const MotionButton = motion(Button);
+
+  //Functions
+  const handleChange = e => {
+    setSearchPhrase(e.target.value);
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+      const response = await axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=${searchPhrase}&key=${apiKey}&maxResults=40`
+      );
+
+      setResults(response.data.items);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
-            <Logo h="40vmin" pointerEvents="none" />
-            <Text>
-              Edit <Code fontSize="xl">src/App.js</Code> and save to reload.
-            </Text>
-            <Link
-              color="teal.500"
-              href="https://chakra-ui.com"
-              fontSize="2xl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn Chakra
-            </Link>
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
+    <Box backgroundColor={bg} height="100vh">
+      <ColorModeSwitcher m={5} />
+      <Center height="500">
+        <VStack>
+          <Heading marginBottom="20" size="3xl" color="red.400">
+            Welcome to BookShelf
+          </Heading>
+          <form style={{ width: '100%' }} onSubmit={handleSubmit}>
+            <InputGroup>
+              <InputLeftElement
+                marginTop="1"
+                pointerEvents="none"
+                children={<BsSearch />}
+              />
+              <Input
+                onChange={handleChange}
+                mr={6}
+                boxShadow={shadow}
+                variant="filled"
+                size="lg"
+                placeholder="Enter book title, author name, or ISBN"
+              ></Input>
+              <MotionButton
+                whileTap={{ scale: 1.2 }}
+                alignSelf="center"
+                boxShadow="lg"
+                variant="filled"
+                bg="red.400"
+                type="submit"
+              >
+                Search
+              </MotionButton>
+            </InputGroup>
+          </form>
+        </VStack>
+      </Center>
+      {results.length !== 0 && <ResultsList results={results} />}
+    </Box>
   );
 }
 
