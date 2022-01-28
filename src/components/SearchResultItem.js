@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   Box,
   Button,
@@ -5,28 +7,44 @@ import {
   Heading,
   Image,
   Link,
-  ScaleFade,
   Text,
   useColorModeValue,
+  Modal,
+  ModalContent,
+  useDisclosure,
+  ModalOverlay,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
 
-export const SearchResultItem = ({ title, author, volumeInfo, pageCount, id }) => {
+import { motion } from 'framer-motion';
+import { Details } from './Details';
+
+//TODO: REFACTOR THIS ENTIRE COMPONENT TO HAVE CLEANER CODE. SPLIT INTO SMALLER COMPONENTS
+
+export const SearchResultItem = ({ item }) => {
+  
+  //Book Variables 
+
+  const id = item.id; 
+  const title = item.volumeInfo.title; 
+  const author = item.volumeInfo.authors; 
+  const volumeInfo = item.volumeInfo; 
+  const pageCount = item.volumeInfo.pageCount; 
+
+  //TODO: Move these values into a dedicated theme 
   const shadow = useColorModeValue('lg', 'dark-lg');
-  const bg = useColorModeValue('gray.100', 'gray.800');
   const btnBg = useColorModeValue('gray.300', 'gray.700');
+  const bg = useColorModeValue('gray.100', 'gray.800');
+
   const MotionFlex = motion(Flex);
   const MotionButton = motion(Button);
-  // let amazonLink;
-  // if (volumeInfo.industryIdentifiers) {
-  //   amazonLink = `https://www.amazon.com/s?k=${volumeInfo.industryIdentifiers[0].identifier}&i=stripbooks&linkCode=qs`;
-  // }
-  const googleLink= `https://www.google.com/books/edition/ /${id}?&kptab=getbook`
+  const googleLink = `https://www.google.com/books/edition/ /${id}?&kptab=getbook`;
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Flex>
       <MotionFlex
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.2 }}
         transition={{ duration: 0.3 }}
         w={450}
         h={400}
@@ -89,6 +107,7 @@ export const SearchResultItem = ({ title, author, volumeInfo, pageCount, id }) =
             </Link>
 
             <MotionButton
+              onClick={onOpen}
               boxShadow={shadow}
               whileTap={{ scale: 0.9 }}
               backgroundColor={btnBg}
@@ -98,6 +117,12 @@ export const SearchResultItem = ({ title, author, volumeInfo, pageCount, id }) =
           </Flex>
         </Box>
       </MotionFlex>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <Details item={item}/>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 };
