@@ -1,62 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Box,
-  Button,
   Flex,
-  Heading,
   Image,
   Link,
-  Text,
-  useColorModeValue,
   Modal,
   ModalContent,
   useDisclosure,
   ModalOverlay,
 } from '@chakra-ui/react';
 
-import { motion } from 'framer-motion';
 import { Details } from './Details';
+import axios from 'axios';
+import { InfoText } from './InfoText';
+import { MotionButton } from './MotionButton';
+import { MotionFlex } from './MotionFlex';
 
 //TODO: REFACTOR THIS ENTIRE COMPONENT TO HAVE CLEANER CODE. SPLIT INTO SMALLER COMPONENTS
 
 export const SearchResultItem = ({ item }) => {
-  
-  //Book Variables 
+  //State Variables
 
-  const id = item.id; 
-  const title = item.volumeInfo.title; 
-  const author = item.volumeInfo.authors; 
-  const volumeInfo = item.volumeInfo; 
-  const pageCount = item.volumeInfo.pageCount; 
+  const [results, setResults] = useState([]);
 
-  //TODO: Move these values into a dedicated theme 
-  const shadow = useColorModeValue('lg', 'dark-lg');
-  const btnBg = useColorModeValue('gray.300', 'gray.700');
-  const bg = useColorModeValue('gray.100', 'gray.800');
+  //Book Variables
 
-  const MotionFlex = motion(Flex);
-  const MotionButton = motion(Button);
+  const id = item.id;
+  const title = item.volumeInfo.title;
+  const author = item.volumeInfo.authors;
+  const volumeInfo = item.volumeInfo;
+  const pageCount = item.volumeInfo.pageCount;
+
   const googleLink = `https://www.google.com/books/edition/ /${id}?&kptab=getbook`;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  useEffect(() => {
+    const getData = async () => {
+      const response = await axios.get(item.selfLink);
+      if (response.data) {
+        setResults(response.data);
+      }
+    };
+    getData();
+  }, [item.selfLink]);
+
   return (
     <Flex>
-      <MotionFlex
-        whileHover={{ scale: 1.2 }}
-        transition={{ duration: 0.3 }}
-        w={450}
-        h={400}
-        m={10}
-        rounded="md"
-        p={3}
-        boxShadow={shadow}
-        background={bg}
-        justifyContent="center"
-        alignItems="center"
-        objectFit="contain"
-      >
+      <MotionFlex>
         <Box flex={0.5} objectFit="contain">
           {volumeInfo.imageLinks ? (
             <Image
@@ -81,46 +73,24 @@ export const SearchResultItem = ({ item }) => {
           p={2}
           justifyContent="center"
         >
-          <Heading marginBottom={2} color="red.400" size="sm">
-            Title:
-          </Heading>
-          <Text marginBottom={2}>{title}</Text>
-          <Heading marginBottom={2} color="red.400" size="sm">
-            Author:
-          </Heading>
-          <Text marginBottom={2}>{author}</Text>
-          <Heading marginBottom={2} color="red.400" size="sm">
-            Page Count
-          </Heading>
-          <Text marginBottom={2}>{pageCount} p</Text>
+          <InfoText heading={'Title'} text={title} />
+          <InfoText heading={'Author'} text={author} />
+          <InfoText heading={'Page Count'} text={pageCount} />
           <Flex marginTop={6} justifyContent="center">
             <Link href={googleLink} isExternal>
-              <MotionButton
-                boxShadow={shadow}
-                whileTap={{ scale: 0.9 }}
-                backgroundColor={btnBg}
-                marginLeft={3}
-                marginRight={3}
-              >
+              <MotionButton marginLeft={3} marginRight={3}>
                 Buy it
               </MotionButton>
             </Link>
 
-            <MotionButton
-              onClick={onOpen}
-              boxShadow={shadow}
-              whileTap={{ scale: 0.9 }}
-              backgroundColor={btnBg}
-            >
-              Details
-            </MotionButton>
+            <MotionButton onClick={onOpen}>Details</MotionButton>
           </Flex>
         </Box>
       </MotionFlex>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <Details item={item}/>
+          <Details results={results} />
         </ModalContent>
       </Modal>
     </Flex>

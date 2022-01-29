@@ -31,7 +31,6 @@ function App() {
   const [results, setResults] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState('');
   let [index, setIndex] = useState(0);
-  let [totalCount, setTotalCount] = useState(0);
 
   //Framer Motion Components
   const MotionButton = motion(Button);
@@ -43,7 +42,7 @@ function App() {
 
   const handleSubmit = async e => {
     setIndex(0);
-    setTotalCount(0);
+
     setSearchPhrase(e.target.search.value);
     e.preventDefault();
     try {
@@ -59,10 +58,7 @@ function App() {
   };
 
   const handleLoadMore = async e => {
-    setIndex((index += 20));
-    setTotalCount((totalCount += 20));
-    console.log(index);
-    console.log(totalCount);
+    setIndex((index += 10));
     e.preventDefault();
     try {
       const response = await axios.get(
@@ -116,7 +112,7 @@ function App() {
       </Center>
       <Flex flexWrap="wrap" justifyContent="center" backgroundColor={bg}>
         {results.map(item => (
-          <SearchResultItem item={item} />
+          <SearchResultItem item={item} key={item.id} />
         ))}
       </Flex>
       {results.length !== 0 && (
